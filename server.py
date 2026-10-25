@@ -5,7 +5,7 @@
   python3 server.py --port 9000
   PORT=9000 python3 server.py
 
-Consulta o TSE a cada 60s. Com X_BEARER_TOKEN, atualiza posts.json a cada 5 min
+Consulta o TSE a cada 30s. Com X_BEARER_TOKEN, atualiza posts.json a cada 5 min
 pelas consultas de POSTS_QUERIES.md. Sem o token, serve o recorte posts.sample.json.
 """
 import argparse
@@ -34,7 +34,7 @@ POSTS = os.path.join(HERE, "posts.json")
 SAMPLE = os.path.join(HERE, "posts.sample.json")
 QUERIES = os.path.join(HERE, "POSTS_QUERIES.md")
 LAST_PATH = os.path.join(HERE, "last_data.json")
-POLL = 60
+POLL = 30
 POLL_X = 300
 NOTE_OFF = "feed do X desativado — defina X_BEARER_TOKEN"
 X_URL = "https://api.x.com/2/tweets/search/recent"
@@ -308,7 +308,7 @@ def main():
     threading.Thread(target=loop_x, daemon=True).start()
     print("Apuração Presidente 2026 · 2º turno", flush=True)
     print(f"Abra http://localhost:{port}", flush=True)
-    print("TSE: atualização a cada 60s", flush=True)
+    print("TSE: atualização a cada 30s", flush=True)
     try:
         httpd = ThreadingHTTPServer(("0.0.0.0", port), H)
     except OSError as e:

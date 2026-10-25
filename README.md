@@ -20,7 +20,7 @@ Abra http://localhost:8765
 
 No Windows: `python server.py`
 
-O servidor consulta o TSE a cada 60 segundos. A página pede os números a cada 30 segundos. Na primeira execução, se `posts.json` não existir, ele é copiado de `posts.sample.json`.
+O servidor consulta o TSE a cada 30 segundos. A página pede os números a cada 30 segundos. Na primeira execução, se `posts.json` não existir, ele é copiado de `posts.sample.json`.
 
 Outra porta: `python3 server.py --port 9000` ou `PORT=9000 python3 server.py`. No PowerShell: `$env:PORT=9000; python server.py`
 
@@ -52,7 +52,7 @@ Eleição 6258:
 
 - **Porta em uso.** O terminal avisa. Use `python3 server.py --port 8766`.
 - **TSE sem parcial nova.** Se o horário publicado não mudar por 10 minutos, a faixa amarela diz “Sem novas parciais”. A apuração oficial às vezes pausa; a página continua consultando.
-- **TSE fora ou sem rede.** Vale o último `last_data.json`. Na primeira vez, sem cache, espere o ciclo de 60s e olhe o terminal.
+- **TSE fora ou sem rede.** Vale o último `last_data.json`. Na primeira vez, sem cache, espere o ciclo de 30s e olhe o terminal.
 - **Feed do X parado.** Sem token, é o recorte de exemplo. Com token, o erro da API aparece no terminal e os posts já salvos continuam na página.
 - **Página em branco.** Abra `http://localhost:8765`. Abrir o `index.html` direto no disco não funciona.
 
