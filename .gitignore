@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.Python
+.DS_Store
+
+# gerados ao rodar o servidor (o recorte versionado é posts.sample.json)
+posts.json
+posts.json.tmp
+last_data.json
+last_data.json.tmp
+*.tmp
+raw/
