@@ -5,7 +5,8 @@
   python3 server.py --port 9000
   PORT=9000 python3 server.py
 
-Consulta o TSE a cada 30s. Com X_BEARER_TOKEN, atualiza posts.json a cada 5 min
+Consulta o TSE a cada 30s. /api/consulta cobre os outros cargos e a
+comparação com anos anteriores. Com X_BEARER_TOKEN, atualiza posts.json a cada 5 min
 pelas consultas de POSTS_QUERIES.md. Sem o token, serve o recorte posts.sample.json.
 """
 import argparse
@@ -24,6 +25,7 @@ import concurrent.futures as cf
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import consulta
 import fetch as F
 import merge_posts
 
@@ -216,6 +218,24 @@ def ensure_posts():
         print("posts.json criado a partir de posts.sample.json", flush=True)
 
 
+def vivo_presidente():
+    with LOCK:
+        return STATE.get("data"), {
+            "ok_at": STATE.get("ok_at"), "fetched_at": STATE.get("fetched_at"),
+            "error": STATE.get("error"), "hora_changed_at": STATE.get("hora_changed_at"),
+        }
+
+
+def consulta_resposta(q):
+    def primeiro(chave, padrao=""):
+        return (q.get(chave) or [padrao])[0]
+
+    return consulta.responder(
+        primeiro("cargo", "presidente"), primeiro("turno", "0"), primeiro("ano", "0"),
+        primeiro("uf"), primeiro("mun"), primeiro("mapa", "1") != "0", vivo_presidente,
+    )
+
+
 def payload():
     with LOCK:
         s = dict(STATE)
@@ -276,6 +296,9 @@ class H(BaseHTTPRequestHandler):
                 self.send(200, page(), "text/html; charset=utf-8")
             elif path == "/api/data":
                 self.send(200, json.dumps(payload(), ensure_ascii=False), "application/json; charset=utf-8")
+            elif path == "/api/consulta":
+                q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                self.send(200, json.dumps(consulta_resposta(q), ensure_ascii=False), "application/json; charset=utf-8")
             elif path == "/api/posts":
                 self.send(200, posts_body(), "application/json; charset=utf-8")
             elif path == "/healthz":
@@ -283,7 +306,12 @@ class H(BaseHTTPRequestHandler):
             else:
                 self.send(404, "not found", "text/plain; charset=utf-8")
         except Exception as e:
-            self.send(500, str(e), "text/plain; charset=utf-8")
+            traceback.print_exc()
+            msg = f"{type(e).__name__}: {e}"
+            if path == "/api/consulta":
+                self.send(500, json.dumps({"error": msg}, ensure_ascii=False), "application/json; charset=utf-8")
+            else:
+                self.send(500, msg, "text/plain; charset=utf-8")
 
     def log_message(self, *a):
         pass

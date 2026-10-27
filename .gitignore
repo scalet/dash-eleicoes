@@ -10,3 +10,4 @@ last_data.json
 last_data.json.tmp
 *.tmp
 raw/
+cache/

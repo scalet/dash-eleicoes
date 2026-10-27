@@ -1,6 +1,6 @@
-# Apuração Presidente 2026 · 2º turno
+# Apuração 2026
 
-Página local para acompanhar a apuração oficial do segundo turno da eleição presidencial de 2026. Os números vêm dos arquivos do TSE. Ao lado, um feed do X (imprensa e políticos): ao vivo, se houver token, ou o recorte real que vem no repositório.
+Página local para acompanhar a apuração oficial. O padrão é o segundo turno de presidente em 2026. Dá para consultar governador, senador, deputado federal, deputado estadual (distrital no DF), prefeito e vereador — estes dois últimos da eleição municipal de 2024. A comparação com anos anteriores usa `historico.json`. Ao lado, um feed do X (imprensa e políticos): ao vivo, se houver token, ou o recorte real que vem no repositório.
 
 Não é um site do TSE.
 
@@ -41,12 +41,14 @@ Não commite o token. `posts.json` e `last_data.json` ficam de fora do git.
 
 ## Fonte dos dados
 
-Eleição 6258:
+Presidente, 2º turno de 2026 (eleição 6258):
 
 - Brasil: https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json
 - Estado: `https://resultados.tse.jus.br/oficial/ele2026/6258/dados/<uf>/<uf>-c0001-e006258-u.json`
 
 `<uf>` é a sigla em minúsculas. `zz` é o Exterior.
+
+Os outros cargos saem do mesmo divulgador: governador, senador e deputados em 2026 (eleições 6259 e 6260); prefeito e vereador em 2024 (619 e 620). A comparação com 2022, 2018, 2020 e 2016 está em `historico.json`, agregado dos arquivos de votação nominal por município e zona do dados abertos do TSE. Para regerar: `python3 historico.py all`.
 
 ## Se algo der errado
 
@@ -62,6 +64,9 @@ Eleição 6258:
 |---|---|
 | `server.py` | Sobe o site, consulta o TSE e, com token, o X |
 | `fetch.py` | Baixa e interpreta os JSON do TSE |
+| `consulta.py` | Cargos, municípios e comparação |
+| `historico.py` | Gera `historico.json` a partir dos ZIP do TSE |
+| `historico.json` | Recorte dos anos anteriores |
 | `merge_posts.py` | Junta e ordena os posts |
 | `index.html` | A página |
 | `geo/map.json` | Contorno dos estados |

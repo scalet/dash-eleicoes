@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Leitura dos arquivos oficiais do TSE — Presidente 2026, 2º turno (eleição 6258).
+"""Leitura dos arquivos oficiais do TSE.
+
+O atalho `get`/`url` continua sendo o presidente de 2026, 2º turno (eleição 6258).
+`arquivo` e `baixar` montam o mesmo tipo de JSON para os outros cargos.
 
 Nacional:
   https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json
@@ -32,10 +35,23 @@ def url(ab):
     return f"{BASE}/{ab}/{ab}-c0001-e{int(ELE):06d}-u.json"
 
 
-def get(ab):
-    req = urllib.request.Request(url(ab), headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"})
-    with urllib.request.urlopen(req, timeout=30) as r:
+def arquivo(ciclo, ele, cargo, abr, mun=""):
+    """URL do resultado unificado (EA20) para um cargo e uma abrangência."""
+    abr = str(abr).lower()
+    cod_ele = f"{int(ele):06d}"
+    cod_cargo = f"{int(cargo):04d}"
+    nome = f"{abr}{mun}-c{cod_cargo}-e{cod_ele}-u.json"
+    return f"https://resultados.tse.jus.br/oficial/{ciclo}/{int(ele)}/dados/{abr}/{nome}"
+
+
+def baixar(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache", "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=40) as r:
         return json.loads(r.read().decode("utf-8"))
+
+
+def get(ab):
+    return baixar(url(ab))
 
 
 def num(s):
@@ -51,10 +67,12 @@ def parse(d):
         for agr in cg["agr"]:
             for p in agr["par"]:
                 for c in p["cand"]:
+                    situacao = (c.get("st") or "").strip()
                     cands.append({
                         "num": c["n"], "nome": c["nmu"], "partido": p["sg"], "seq": int(c.get("seq") or 99),
-                        "votos": int(c["vap"] or 0), "pct": num(c["pvapn"]), "eleito": c.get("e") == "s",
-                        "situacao": c.get("st", ""), "vice": (c.get("vs") or [{}])[0].get("nmu", ""),
+                        "votos": int(c["vap"] or 0), "pct": num(c["pvapn"]),
+                        "eleito": situacao.lower().startswith("eleito"),
+                        "situacao": situacao, "vice": (c.get("vs") or [{}])[0].get("nmu", ""),
                     })
     cands.sort(key=lambda c: (-c["votos"], c["seq"]))
     s, e, v = d["s"], d["e"], d["v"]
